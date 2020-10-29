@@ -1,0 +1,268 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.3.0" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.3.0" type="image/png" sizes="32x32"><meta name="description" content="Efﬁcient Estimation of Word Representations in Vector Space                           Abstract       本文提出了两种新颖的模型体系结构，用于计算来自非常大的数据集的字的连续向量表示（Continuous Vector Representation）。表现结果通过词相似度任务（W">
+<meta property="og:type" content="article">
+<meta property="og:title" content="论文笔记1">
+<meta property="og:url" content="http://example.com/2020/10/29/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="Gypsophila">
+<meta property="og:description" content="Efﬁcient Estimation of Word Representations in Vector Space                           Abstract       本文提出了两种新颖的模型体系结构，用于计算来自非常大的数据集的字的连续向量表示（Continuous Vector Representation）。表现结果通过词相似度任务（W">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s1.ax1x.com/2020/10/22/Bkecy4.png">
+<meta property="og:image" content="https://math.jianshu.com/math?formula=H%20%5Ctimes%20V">
+<meta property="og:image" content="https://math.jianshu.com/math?formula=%5Clog_2%7BV%7D">
+<meta property="og:image" content="https://math.jianshu.com/math?formula=N%20%5Ctimes%20D%20%5Ctimes%20H">
+<meta property="og:image" content="https://math.jianshu.com/math?formula=%5Clog_2(V)">
+<meta property="og:image" content="https://math.jianshu.com/math?formula=%5Clog_2(unigram-perplexity(V))">
+<meta property="og:image" content="https://math.jianshu.com/math?formula=H%5Ctimes%20V">
+<meta property="og:image" content="https://math.jianshu.com/math?formula=x=H%5Ctimes%20log_2(V)">
+<meta property="og:image" content="https://math.jianshu.com/math?formula=H%5Ctimes%20H">
+<meta property="og:image" content="https://math.jianshu.com/math?formula=Q%20=%20N%5Ctimes%20D%20+%20D%20%5Ctimes%20log_2(V)">
+<meta property="og:image" content="c:/Users/20851/AppData/Roaming/Typora/typora-user-images/image-20201027161149023.png">
+<meta property="og:image" content="https://math.jianshu.com/math?formula=Q=C%5Ctimes(D+D%5Clog_2(V))">
+<meta property="og:image" content="c:/Users/20851/AppData/Roaming/Typora/typora-user-images/image-20201027161743383.png">
+<meta property="article:published_time" content="2020-10-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-10-28T16:00:00.000Z">
+<meta property="article:author" content="Gypsophila">
+<meta property="article:tag" content="study">
+<meta property="article:tag" content="paper">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s1.ax1x.com/2020/10/22/Bkecy4.png"><title>论文笔记1 | Gypsophila</title><link ref="canonical" href="http://example.com/2020/10/29/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.3.0"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":true,"scrollDownIcon":true},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: undefined,
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"复制","copySuccess":"复制成功","copyError":"复制失败"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.2.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">归档</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">分类</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">标签</span></a></div></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">Gypsophila</div><div class="header-banner-info__subtitle"></div></div><div class="header-banner-arrow"><div class="header-banner-arrow__icon"><i class="fas fa-angle-down"></i></div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">论文笔记1</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2020-10-29</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2020-10-29</span></span></div></header><div class="post-body">
+        <h1 id="Efﬁcient-Estimation-of-Word-Representations-in-Vector-Space"   >
+          <a href="#Efﬁcient-Estimation-of-Word-Representations-in-Vector-Space" class="heading-link"><i class="fas fa-link"></i></a>Efﬁcient Estimation of Word Representations in Vector Space</h1>
+      
+        <h2 id="Abstract"   >
+          <a href="#Abstract" class="heading-link"><i class="fas fa-link"></i></a>Abstract</h2>
+      <p>本文提出了两种新颖的模型体系结构，用于计算来自非常大的数据集的字的连续向量表示（Continuous Vector Representation）。表现结果通过词相似度任务（Word Similarity Task）来衡量，并且将结果与之前其他不同类型且在神经网络方面最优秀的技术进行比较。实验得到我们以更低的计算成本得到精度大幅提升的结果，即不到一天的时间内从16亿字数据集中学习高质量的单词向量。从效果角度来讲，在词的语法与语义相似度方面，达到了领先水平。</p>
+<a id="more"></a>
+
+        <h2 id="1-Introduction"   >
+          <a href="#1-Introduction" class="heading-link"><i class="fas fa-link"></i></a>1.Introduction</h2>
+      <ul>
+<li><p>将词作为原子单元，作词表的索引，而不会去考虑词间的相似性。优点：简单性，鲁棒性。例子：N-gram</p>
+<p>注：N-gram模型学习</p>
+<ul>
+<li><p>第一个特点是某个词的出现依赖于其他若干个词，第二个特点是我们获得的信息越多，预测越准确。</p>
+</li>
+<li><p>两个缺点：</p>
+<ul>
+<li><p>参数空间过大</p>
+<p>解决方法：</p>
+<p>​        <strong>马尔科夫假设（Markov Assumption）</strong>：<strong>一个词的出现仅与它之前的若干个词有关</strong>。</p>
+<p>​        如果一个词的出现仅依赖于它前面出现的一个词，那么我们就称之为 <code>Bi-gram</code></p>
+<p>​        如果一个词的出现仅依赖于它前面出现的两个词，那么我们就称之为 <code>Tri-gram</code></p>
+</li>
+<li><p>数据稀疏(某些n-gram从未出现过)严重</p>
+<p>解决方法：</p>
+<p>​        <strong>数据平滑（data Smoothing）</strong>，数据平滑的目的有两个：一个是使所有的N-gram概率之和为1，使所有的n-gram概率都不为0。它的本质，是重新分配整个概率空间，使已经出现过的n-gram的概率降低，补充给未曾出现过的n-gram。</p>
+<ul>
+<li> <strong>拉普拉斯平滑</strong></li>
+<li> <strong>内插与回溯</strong><sub>不太懂</sub></li>
+<li> <strong>Absolute Discounting</strong><sub>不太懂</sub></li>
+<li><strong>Kneser-Ney Smoothing</strong><sub>不太懂</sub></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>用途</p>
+<ul>
+<li>词性标注</li>
+<li>垃圾短信分类</li>
+<li>分词器</li>
+<li>机器翻译和语音识别</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        <h3 id="1-1Goals-of-the-Paper-论文目的"   >
+          <a href="#1-1Goals-of-the-Paper-论文目的" class="heading-link"><i class="fas fa-link"></i></a>1.1Goals of the Paper(论文目的)</h3>
+      <p>  本文的主要目的是介绍可用于从具有数十亿字的大型数据集中学习高质量单词向量的技术，以及词汇表中数百万个单词。</p>
+<p>  尝试通过开发保持线性规则性词的新模型体系结构来最大化这些向量操作的准确性。我们设计了一个综合的测试集，来从语法和语义规则两方面评价，以此来展示我们的模型可以以很高的精度学习到许多规则。</p>
+
+        <h3 id="1-2Previous-Work"   >
+          <a href="#1-2Previous-Work" class="heading-link"><i class="fas fa-link"></i></a>1.2Previous Work</h3>
+      <ul>
+<li><p>神经网络语言模型（NNLM）的模型体系结构</p>
+<p>注：NNLM学习<sub>待完整学习后补充</sub></p>
+<ul>
+<li>由四层组成，输入层、嵌入层、隐层和输出层。模型接收的输入是长度为 n 的词序列，输出是下一个词的类别。。首先，输入是单词序列的index序列，例如单词 I 在字典（大小为 ∣V∣）中的index是10，单词 am 的 index 是23， Bengio 的 index 是65，则句子“I am Bengio”的index序列就是 10, 23, 65。嵌入层（Embedding）是一个大小为 <em>V</em>∣×<em>K</em>的矩阵，从中取出第10、23、65行向量拼成3×<em>K</em>的矩阵就是Embedding层的输出了。隐层接受拼接后的Embedding层输出作为输入，以tanh为激活函数，最后送入带softmax的输出层，输出概率。</li>
+</ul>
+</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://imgchr.com/i/Bkecy4"><img src="https://s1.ax1x.com/2020/10/22/Bkecy4.png" alt="Bkecy4.png" style="zoom:50%;" /></a></p>
+
+        <h2 id="2-Model-Architectures-模型结构"   >
+          <a href="#2-Model-Architectures-模型结构" class="heading-link"><i class="fas fa-link"></i></a>2 Model Architectures (模型结构)</h2>
+      <ul>
+<li><p>神经网络学习的单词分布式表示与LSA( Latent Semantic Analysis)和LDA(Latent Dirichlet Allocation)比较:</p>
+<ul>
+<li>它们比LSA在保持单词之间的线性规律方面表现更好</li>
+<li>LDA在大型数据集上的计算成本非常高</li>
+</ul>
+</li>
+<li><p>用完整的训练模型所需要的参数的数量来作为模型计算复杂度的定义,试图最大化准确率，同时最小化计算复杂度。</p>
+<ul>
+<li><p>训练复杂度与这个量成正比：$O=E<em>T</em>Q$</p>
+<p>E表示训练epoch的次数，T表示训练集中词数，Q表示模型结构相关的量。</p>
+</li>
+</ul>
+</li>
+</ul>
+
+        <h3 id="2-1-Feedfroward-Neural-Net-Language-Model-NNLM"   >
+          <a href="#2-1-Feedfroward-Neural-Net-Language-Model-NNLM" class="heading-link"><i class="fas fa-link"></i></a>2.1 Feedfroward Neural Net Language Model(NNLM)</h3>
+      <ul>
+<li><p>由输入，映射，隐藏和输出层组成。 在输入层，使用1-V编码对N个先前字进行编码，其中V是词汇的大小。然后使用共享映射矩阵将输入层投影到具有维数NxD的映射层P。</p>
+</li>
+<li><p>因为映射层是稠密的，所以NNLM结构的复杂计算在于映射层和隐层之间的计算。（N=10，映射层P的大小可能为500到2000，而隐层H的大小通常为500到1000。输出层的维度为V）</p>
+<ul>
+<li>每个训练实例的计算复杂度为：$Q=N<em>D+N</em>D<em>H+H</em>V$</li>
+<li>主要的复杂度集中在第三项<img   src="https://math.jianshu.com/math?formula=H%20%5Ctimes%20V" style=""  alt="H \times V">。为了避免如此，可以将输出单元的数量降低到<img   src="https://math.jianshu.com/math?formula=%5Clog_2%7BV%7D" style=""  alt="\log_2{V}">。至此模型的主要复杂计算就在于第二项<img   src="https://math.jianshu.com/math?formula=N%20%5Ctimes%20D%20%5Ctimes%20H" style=""  alt="N \times D \times H"></li>
+</ul>
+</li>
+<li><p>模型采用层次softmax,Huffman树对频繁出现的词以较短的编码，这样进一步减少了输出单元的数量。然而，平衡二叉树需要<img   src="https://math.jianshu.com/math?formula=%5Clog_2(V)" style=""  alt="\log_2(V)"> ，基于huffman树的层次softmax仅仅需要<img   src="https://math.jianshu.com/math?formula=%5Clog_2(unigram-perplexity(V))" style=""  alt="\log_2(unigram-perplexity(V)))">)</p>
+</li>
+</ul>
+
+        <h3 id="2-2-Recurrent-Neural-Net-Language-Model-RNNLM）"   >
+          <a href="#2-2-Recurrent-Neural-Net-Language-Model-RNNLM）" class="heading-link"><i class="fas fa-link"></i></a>2.2 Recurrent Neural Net Language Model(RNNLM）</h3>
+      <ul>
+<li><p>RNNLM的提出是为了克服NNLM的一些局限性。</p>
+</li>
+<li><p>RNN并没有映射层，只有input-hidden-ouput几层。由于以前的信息能够表示为隐层中的状态，该状态可以根据当前的输入以及上个时间步的状态进行更新，这就使得递归模型形成了某种形式的短时记忆。</p>
+</li>
+<li><p>该模型对一个训练实例的时间复杂度是$Q=H<em>H+H</em>V$</p>
+<ul>
+<li>我们可以使用层次softmax将<img   src="https://math.jianshu.com/math?formula=H%5Ctimes%20V" style=""  alt="H\times V">降低为<img   src="https://math.jianshu.com/math?formula=x=H%5Ctimes%20log_2(V)" style=""  alt="x=H\times log_2(V)"> 。至此RNN模型的主要计算复杂度在于<img   src="https://math.jianshu.com/math?formula=H%5Ctimes%20H" style=""  alt="H\times H">。</li>
+</ul>
+</li>
+</ul>
+
+        <h3 id="2-3Parallel-Training-of-Neural-Networks"   >
+          <a href="#2-3Parallel-Training-of-Neural-Networks" class="heading-link"><i class="fas fa-link"></i></a>2.3Parallel Training of Neural Networks.</h3>
+      <ul>
+<li>DistBlief可以并行运行一个模型的多个副本，每个副本的梯度更新同步通过中央服务器来保持所有参数的一致。我们**采用mini-batch异步梯度以及自适应的学习速率，整个过程称为Adagrad。</li>
+</ul>
+
+        <h2 id="3-New-Log-linear-Models"   >
+          <a href="#3-New-Log-linear-Models" class="heading-link"><i class="fas fa-link"></i></a>3 New Log-linear Models</h2>
+      <ul>
+<li>使用简单模型获得连续词向量的表示；</li>
+<li>基于词的分布式表示来训练N-gram NNLM。</li>
+</ul>
+
+        <h3 id="3-1-Continuous-Bag-of-Words-Model"   >
+          <a href="#3-1-Continuous-Bag-of-Words-Model" class="heading-link"><i class="fas fa-link"></i></a>3.1 Continuous Bag-of-Words Model</h3>
+      <ul>
+<li>CBOW类似于前馈NNLM，其中非线性隐藏层被移除，投影层被共享用于所有单词，所有单词都被投射到相同的位置</li>
+<li>在输入处构建具有四个未来和四个历史单词的对数线性分类器</li>
+<li>训练复杂度：<img   src="https://math.jianshu.com/math?formula=Q%20=%20N%5Ctimes%20D%20+%20D%20%5Ctimes%20log_2(V)" style=""  alt="Q = N\times D + D \times log_2(V)"></li>
+</ul>
+<p><img src="C:\Users\20851\AppData\Roaming\Typora\typora-user-images\image-20201027161149023.png" alt="image-20201027161149023"></p>
+
+        <h3 id="3-2-Continuous-Skip-gram-Model"   >
+          <a href="#3-2-Continuous-Skip-gram-Model" class="heading-link"><i class="fas fa-link"></i></a>3.2 Continuous Skip-gram Model</h3>
+      <ul>
+<li>不同与CBOW根据context来预测当前word，本模型尝试优化根据另外一个词来预测同一个句子中这个词的类别。</li>
+<li>增加窗口的大小可以改善学习到的词向量的质量，但是也会增加了计算复杂度</li>
+<li>离得最远的词通常与当前词的关系要远远小于离得近的，所以给那些离得较远的词较小的权重</li>
+<li>训练复杂度正比于：<img   src="https://math.jianshu.com/math?formula=Q=C%5Ctimes(D+D%5Clog_2(V))" style=""  alt="Q=C\times(D+D\log_2(V))"><ul>
+<li>C为词的最大距离</li>
+</ul>
+</li>
+</ul>
+<p><img src="C:\Users\20851\AppData\Roaming\Typora\typora-user-images\image-20201027161743383.png" alt="image-20201027161743383"></p>
+
+        <h2 id="4-Results"   >
+          <a href="#4-Results" class="heading-link"><i class="fas fa-link"></i></a>4 Results</h2>
+      
+        <h3 id="4-1-TaskDescription"   >
+          <a href="#4-1-TaskDescription" class="heading-link"><i class="fas fa-link"></i></a>4.1 TaskDescription</h3>
+      <p>为了衡量词向量的质量，我们定义了一个包含五种类型语义问题和九种类型语法问题的综合测试集。创建的步骤:</p>
+<ul>
+<li>手动创建一个类似的单词对列表</li>
+<li>然后，由连接词对组成一个完整的问题列表</li>
+</ul>
+<p>达到100%的准确率是不可能的，因为目前的模型没有任何关于词法的输入信息。词向量对于某些应用的有用性应该与这个精度度量正相关。</p>
+
+        <h3 id="4-2-Maximization-of-Accuracy"   >
+          <a href="#4-2-Maximization-of-Accuracy" class="heading-link"><i class="fas fa-link"></i></a>4.2 Maximization of Accuracy</h3>
+      <p>面临着时间限制的优化问题，使用更多的数据和更高维度的字向量将提高准确性。使用CBOW体系结构，在不同的词向量维数选择和训练数据量增加的情况下，可以得到在某个点之后，增加更多的维度或增加更多的训练数据，所提供的改善在递减。因此，<strong>必须同时增加向量维数和训练数据的数量</strong>。</p>
+
+        <h3 id="4-3-Comparison-of-Model-Architectures"   >
+          <a href="#4-3-Comparison-of-Model-Architectures" class="heading-link"><i class="fas fa-link"></i></a>4.3 Comparison of Model Architectures</h3>
+      <p>RNN中使用的词向量在句法问题上表现良好。NNLM向量的性能明显优于RNN，因为RNNLM中的词向量直接连接到一个非线性隐藏的laver。CBOW体系结构在句法任务上比NNLM工作得更好，在语义任务上也差不多。最后，在语法任务上，Skip</p>
+<p>-gram比CBOW模型稍微差一些(但仍然比NNLM好),在测试的语义部分比其他所有模型都好。</p>
+
+        <h3 id="4-4-Large-Scale-Parallel-Training-of-Models"   >
+          <a href="#4-4-Large-Scale-Parallel-Training-of-Models" class="heading-link"><i class="fas fa-link"></i></a>4.4 Large Scale Parallel Training of Models</h3>
+      <p>使用怀疑分布框架训练的模型的比较。训练1000维向量的NNLM会花费太长时间。</p>
+<p>由于分布式框架的开销，BOW和Skip-gram的CPU使用量比它们的单机实现要紧密得多。</p>
+
+        <h3 id="4-5-Microsoft-Research-Sentence-Completion-Challenge"   >
+          <a href="#4-5-Microsoft-Research-Sentence-Completion-Challenge" class="heading-link"><i class="fas fa-link"></i></a>4.5 Microsoft Research Sentence Completion Challenge</h3>
+      <p>微软句子完成挑战作为推进语言建模和其他NLP技术的一项任务。这项任务由1040个句子组成，每个句子都少一个单词，目标是选出与整个句子最连贯的单词，并给出5个合理的选择。</p>
+<p>Skip-gram模型本身在这个任务上并没有比LSA表现得更好,这个模型的分数与RNNLMs互补获得的分数,和加权组合会得到一个新的结果58.9%的准确率。</p>
+
+        <h2 id="5-Examples-of-the-Learned-Relationships"   >
+          <a href="#5-Examples-of-the-Learned-Relationships" class="heading-link"><i class="fas fa-link"></i></a>5 Examples of the Learned Relationships</h2>
+      <p>通过减去两个单词向量来定义关系，然后将结果加到另一个单词上。精度是相当好的，尽管有很多明显的进一步改进的空间。我们相信，在具有更大维数的更大数据集上训练的词向量将表现得更好，并将有助于开发新的创新应用程序。</p>
+<p>另一种提高准确性的方法是提供多个关于这种关系的例子。通过使用十个例子而不是一个例子来形成关系向量。通过计算单词列表的平均向量和查找最远的单词向量，我们观察到选择列表外单词的良好准确性。</p>
+
+        <h2 id="6-Conclusion"   >
+          <a href="#6-Conclusion" class="heading-link"><i class="fas fa-link"></i></a>6 Conclusion</h2>
+      <p>研究了不同模型在句法和语义语言任务集合上产生的词向量表示的质量。与流行的神经网络模型(前馈和递归)相比，使用非常简单的模型架构可以训练高质量的词向量。由于计算复杂度低得多，从一个大得多的数据集计算非常精确的高维字向量是可能的。</p>
+<p>将公开可用的RNN向量与其他技术一起使用，使得Spearman的秩相关比之前的最佳结果提高了50%以上。</p>
+<p>正在进行的工作表明，单词向量可以成功地应用于知识库中事实的自动扩展，也可以用于验证现有事实的正确性。机器翻译实验的结果也很有希望。</p>
+
+        <h1 id="个人总结"   >
+          <a href="#个人总结" class="heading-link"><i class="fas fa-link"></i></a>个人总结</h1>
+      <p>读这一篇论文用了一周的时间，一段段的时间加起来也不少。从开始的看着英文便读不进去，到后来借助工具慢慢能够看进去。</p>
+<p>这个过程遇到了很多很多困难，除了英语基础问题外最大的就是就是专业基础不足，虽然整篇论文中没有写一行代码，但是几乎其中的所有算法和模型对我来说都是陌生的，甚至最基本的模型我也是一无所知，需要我去网上了解。这篇论文我还是留下了很多看不懂的地方，尤其到了结果分析的这一部分开始，它分析的过程和得出的结论有些迷惑。</p>
+<p>这一篇论文读下来，我第一次接触到NLP方面的知识，很浅显的学到了一些表层的东西，在尝试深一点理解各种模型结构和分析所用到的函数时，发现没有机器学习的基础很难真的看懂它们。所以接下来在读下一篇论文的同时，我打算从最基础的机器学习的知识开始学，在理解了机器学习的过程方法和简单的模型后再回来深入的读这篇论文。</p>
+<p><strong>未完待续···待学过基础知识之后再来补充</strong></p>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文结束，感谢您的阅读 ------</div></div><div class="post-copyright copyright"><div class="copyright-author"><span class="copyright-author__name">本文作者: </span><span class="copyright-author__value"><a href="http://example.com">Gypsophila</a></span></div><div class="copyright-link"><span class="copyright-link__name">本文链接: </span><span class="copyright-link__value"><a href="http://example.com/2020/10/29/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/">http://example.com/2020/10/29/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/</a></span></div><div class="copyright-notice"><span class="copyright-notice__name">版权声明: </span><span class="copyright-notice__value">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" rel="external nofollow" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！</span></div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://example.com/tags/study/">study</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://example.com/tags/paper/">paper</a></span></div><nav class="post-paginator paginator"></nav></footer></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目录</span><span class="sidebar-nav-ov">站点概览</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Ef%EF%AC%81cient-Estimation-of-Word-Representations-in-Vector-Space"><span class="toc-number">1.</span> <span class="toc-text">
+          Efﬁcient Estimation of Word Representations in Vector Space</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Abstract"><span class="toc-number">1.1.</span> <span class="toc-text">
+          Abstract</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Introduction"><span class="toc-number">1.2.</span> <span class="toc-text">
+          1.Introduction</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1Goals-of-the-Paper-%E8%AE%BA%E6%96%87%E7%9B%AE%E7%9A%84"><span class="toc-number">1.2.1.</span> <span class="toc-text">
+          1.1Goals of the Paper(论文目的)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2Previous-Work"><span class="toc-number">1.2.2.</span> <span class="toc-text">
+          1.2Previous Work</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Model-Architectures-%E6%A8%A1%E5%9E%8B%E7%BB%93%E6%9E%84"><span class="toc-number">1.3.</span> <span class="toc-text">
+          2 Model Architectures (模型结构)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Feedfroward-Neural-Net-Language-Model-NNLM"><span class="toc-number">1.3.1.</span> <span class="toc-text">
+          2.1 Feedfroward Neural Net Language Model(NNLM)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Recurrent-Neural-Net-Language-Model-RNNLM%EF%BC%89"><span class="toc-number">1.3.2.</span> <span class="toc-text">
+          2.2 Recurrent Neural Net Language Model(RNNLM）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3Parallel-Training-of-Neural-Networks"><span class="toc-number">1.3.3.</span> <span class="toc-text">
+          2.3Parallel Training of Neural Networks.</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-New-Log-linear-Models"><span class="toc-number">1.4.</span> <span class="toc-text">
+          3 New Log-linear Models</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-Continuous-Bag-of-Words-Model"><span class="toc-number">1.4.1.</span> <span class="toc-text">
+          3.1 Continuous Bag-of-Words Model</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Continuous-Skip-gram-Model"><span class="toc-number">1.4.2.</span> <span class="toc-text">
+          3.2 Continuous Skip-gram Model</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Results"><span class="toc-number">1.5.</span> <span class="toc-text">
+          4 Results</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-TaskDescription"><span class="toc-number">1.5.1.</span> <span class="toc-text">
+          4.1 TaskDescription</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-Maximization-of-Accuracy"><span class="toc-number">1.5.2.</span> <span class="toc-text">
+          4.2 Maximization of Accuracy</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-Comparison-of-Model-Architectures"><span class="toc-number">1.5.3.</span> <span class="toc-text">
+          4.3 Comparison of Model Architectures</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-Large-Scale-Parallel-Training-of-Models"><span class="toc-number">1.5.4.</span> <span class="toc-text">
+          4.4 Large Scale Parallel Training of Models</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-5-Microsoft-Research-Sentence-Completion-Challenge"><span class="toc-number">1.5.5.</span> <span class="toc-text">
+          4.5 Microsoft Research Sentence Completion Challenge</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Examples-of-the-Learned-Relationships"><span class="toc-number">1.6.</span> <span class="toc-text">
+          5 Examples of the Learned Relationships</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Conclusion"><span class="toc-number">1.7.</span> <span class="toc-text">
+          6 Conclusion</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%AA%E4%BA%BA%E6%80%BB%E7%BB%93"><span class="toc-number">2.</span> <span class="toc-text">
+          个人总结</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="https://i.loli.net/2020/10/29/IvSrlBsXeFQTYVg.jpg" alt="avatar"></div><p class="sidebar-ov-author__text">28  78</p></div><div class="sidebar-ov-social"><a class="sidebar-ov-social-item" href="https://github.com/L-Sunshine-study" target="_blank" rel="noopener" data-popover="Github" data-popover-pos="up"><span class="sidebar-ov-social-item__icon"><i class="fab fa-github"></i></span></a><a class="sidebar-ov-social-item" href="ldx20000910" target="_blank" rel="noopener" data-popover="微信" data-popover-pos="up"><span class="sidebar-ov-social-item__icon"><i class="fab fa-weixin"></i></span></a><a class="sidebar-ov-social-item" href="208518230" target="_blank" rel="noopener" data-popover="QQ" data-popover-pos="up"><span class="sidebar-ov-social-item__icon"><i class="fab fa-qq"></i></span></a></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">1</div><div class="sidebar-ov-state-item__name">归档</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">1</div><div class="sidebar-ov-state-item__name">分类</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">2</div><div class="sidebar-ov-state-item__name">标签</div></a></div><div class="sidebar-ov-cc"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener" data-popover="知识共享许可协议" data-popover-pos="up"><img src="/images/cc-by-nc-sa.svg"></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">你已阅读了 </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2020</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>Gypsophila</span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1.0.1/dist/canvas-nest.min.js" color="54,54,54" opacity="0.8" count="200" zIndex="-1"></script><script src="/js/utils.js?v=2.3.0"></script><script src="/js/stun-boot.js?v=2.3.0"></script><script src="/js/scroll.js?v=2.3.0"></script><script src="/js/header.js?v=2.3.0"></script><script src="/js/sidebar.js?v=2.3.0"></script></body></html>
